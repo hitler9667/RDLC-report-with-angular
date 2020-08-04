@@ -1,0 +1,84 @@
+Prerequisite: 
+	Knowledge of basics of Angular 2+
+	Knowledge of RDLC report design
+
+Report viewer is used to display the report in RDLC (Report Definition Language Client).
+However, RDLC does not have options to include Parameter filter along with Reports as we have in SSRS (rdl) files.
+We can include custom parameters dropdown in angular and set the query string to get the report from Server running the RDLC Web form project
+
+Create a new project with web form template. 
+Run and see if it is working
+Delete the unwanted aspx files as they are not required
+
+You can use other templates like MVC too, but remember not to include .aspx files under Views folder
+
+Import the report viewer control from Nuget Package Manager.
+Search for Report Viewer and install Microsoft Reporting Services Report Viewer Control Webforms
+After installation, create a new file with .aspx extention and drag script manager and report viewer control
+Set the width and height
+
+Create two folders
+	Report
+	ReportDataset
+
+Create new file of dataset under ReportDataset
+	Include new datatable in Report Dataset known as ProductSaleDatatable
+	Include all the columns under Select query and change the datatype
+
+Create new Report and include the header and table.
+	Open Report Data of Report under View Menu of Visual Studio
+	Import the datatable by creating new dataset under Reports
+	
+
+Go to code behind and write the following code:
+Get Parameters from Query string
+Get data from database based on query string
+
+Download and run Northwind database script as this example is using to show the report. Project sample download link is given in the description
+
+Write the below query: 
+@"Select O.ProductID, P.ProductName, OS.ShipCountry,O.UnitPrice, 
+                                O.Quantity, (O.UnitPrice * Quantity) as Amount 
+                                from dbo.[Order Details] O
+                                inner join dbo.Products P on P.ProductID = O.ProductID
+                                inner join dbo.Orders OS on OS.OrderID = O.OrderID
+                                where O.ProductID = @ProductId AND OS.ShipCountry = @ShipCountry"
+
+and Connection string to connect to the database from our application.
+
+Generate report
+
+Run the project with custom link as ProductId=11&Country=France
+
+Go to windows explorer and create a new project using Angular commands
+	Include routing (optional)
+	Include CSS as styling
+	Include bootstrap npm i bootstrap and set the path in angular json as "node_modules/bootstrap/dist/css/bootstrap.min.css"
+	Remove unwanted codes from App Component Html
+	Remove unwanted codes from App Component Ts
+	Include variables of ReportSrc first as string and include the hard coded string of localhost to check if it is working
+	Include IFrame in HTML with SRC variable and run the project to see if it is working
+<iframe *ngIf="ReportUrl" [src]="ReportUrl" width="100%" height="700px" allowfullscreen></iframe>
+	Since there is an error, we have to include DomSanitizer 
+	Include other two strings of ProductId and Country
+	Include a new service to hold the list of product and Country
+	Include FormsModule in App Module to implement ngModel
+	Include the html Codes
+
+<div class="row col-md-12 pt-2">
+    <div class="col-md-4 form-group">
+      <label for="Product">Select Product</label>
+      <select id="Product" class="form-control" [(ngModel)]="ProductId">
+        <option value="">Select Product</option>
+        <option *ngFor="let item of _jsonDataService.Products" [ngValue]="item.ProductID">{{item.ProductName}}</option>
+      </select>
+    </div>
+    <div class="col-md-4 form-group">
+      <label for="Country">Select Country</label>
+      <select id="Country" class="form-control" [(ngModel)]="Country">
+        <option value="">Select Country</option>
+        <option *ngFor="let item of _jsonDataService.Countries" [ngValue]="item">{{item}}</option>
+      </select>
+    </div>
+</div>
+  <button (click)="ViewReport()" class="btn btn-primary">View Report</button>
